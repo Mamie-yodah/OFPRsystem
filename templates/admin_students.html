@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Admin | Students{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Manage Students</h2>
+  <form method="GET" class="mb-3" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <input type="text" name="q" value="{{ q }}" placeholder="Search name or email"/>
+    <button class="btn btn-secondary" type="submit">Search</button>
+    <a class="btn btn-secondary" href="{{ url_for('admin_dashboard') }}">Back</a>
+  </form>
+  <form method="POST" action="{{ url_for('admin_students_bulk') }}" id="bulkForm">
+    <div style="display:flex; gap:8px; margin-bottom:10px;">
+      <select name="action" required>
+        <option value="">Bulk action...</option>
+        <option value="verify">Verify</option>
+        <option value="deactivate">Deactivate</option>
+        <option value="reactivate">Reactivate</option>
+        <option value="export">Export CSV</option>
+      </select>
+      <button class="btn btn-secondary" type="submit">Apply</button>
+    </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th><input type="checkbox" onclick="document.querySelectorAll('input[name=ids]').forEach(c=>c.checked=this.checked)"></th>
+        <th>#</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Program</th>
+        <th>Verified</th>
+        <th>Active</th>
+        <th>Last Login</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td><input type="checkbox" name="ids" value="{{ s.id }}"></td>
+        <td>{{ s.id }}</td>
+        <td>{{ s.full_name }}</td>
+        <td>{{ s.email }}</td>
+        <td>{{ courses.get(s.course_code, {}).get('name', s.course_code) }}</td>
+        <td>{{ 'Yes' if s.is_verified else 'No' }}</td>
+        <td>{{ 'Yes' if s.is_active else 'No' }}</td>
+        <td>{{ s.last_login_at.strftime('%Y-%m-%d %H:%M') if s.last_login_at else '—' }}</td>
+        <td><a class="btn btn-primary" href="{{ url_for('admin_student_edit', student_id=s.id) }}">Edit</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="muted">No students found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </form>
+</div>
+{% endblock %}
+

@@ -1,0 +1,27 @@
+{% extends "base_telone.html" %}
+{% block title %}My Status — TelOne{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Student Status</h2>
+  <p class="muted">View your registration and payment details.</p>
+  <div class="grid responsive">
+    <div class="card">
+      <h3>Student Details</h3>
+      <table class="table" role="table" aria-label="Student details">
+        <tbody>
+          <tr><th>Full name</th><td>{{ student.fullname if student.fullname else student.name if student.name else '—' }}</td></tr>
+          <tr><th>Registration No.</th><td>{{ student.reg_no if student.reg_no else student.regno if student.regno else student.id if student.id else '—' }}</td></tr>
+          <tr><th>Course</th><td>{{ student.course if student.course else student.course_name if student.course_name else '—' }}</td></tr>
+          <tr><th>Email</th><td>{{ student.email if student.email else '—' }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Payment</h3>
+      <p><strong>Status:</strong> {% if student.paid or student.payment_status == 'paid' %}<span class="alert success">Paid</span>{% else %}<span class="alert error">Pending</span>{% endif %}</p>
+      <p><strong>Amount Due:</strong> {{ amount_due if amount_due else '0.00' }}</p>
+      <a class="btn btn-primary" href="{{ url_for('payment', reg=student.reg_no if student.reg_no else student.regno if student.regno else student.id) }}">Pay Now</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

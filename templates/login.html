@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Login - TCFL{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>Student Login</h2>
+      <p class="form-subtitle">Access your student dashboard</p>
+    </div>
+    
+    <form method="POST" class="login-form">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Login</button>
+
+      <div class="form-actions" style="margin-top:10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <form method="POST" action="{{ url_for('resend_verification') }}" onsubmit="this.querySelector('input[name=email]').value = document.getElementById('email').value;" style="display:flex; gap:10px; align-items:center;">
+          <input type="hidden" name="email" />
+          <button type="submit" class="btn btn-secondary">Resend verification</button>
+        </form>
+      </div>
+      
+      <div class="form-footer">
+        <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

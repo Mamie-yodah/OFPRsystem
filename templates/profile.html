@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Profile - TCFL{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>Edit Profile</h2>
+      <p class="form-subtitle">Update your personal information</p>
+    </div>
+    
+    <form method="POST" class="profile-form" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="full_name">Full Name <span class="required">*</span></label>
+        <input type="text" id="full_name" name="full_name" value="{{ student.full_name }}" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="course_code">Program <span class="required">*</span></label>
+        <select id="course_code" name="course_code" required>
+          {% for code, c in courses.items() %}
+            <option value="{{ code }}" {% if code == student.course_code %}selected{% endif %}>
+              {{ c.name }} - US${{ c.tuition }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="contact_number">Contact Number</label>
+        <input type="text" id="contact_number" name="contact_number" value="{{ student.contact_number or '' }}" placeholder="e.g. +263 77 123 4567">
+      </div>
+
+      <div class="form-group">
+        <label for="profile_photo">Profile Photo</label>
+        {% if student.profile_photo %}
+          <div style="margin-bottom:8px;">
+            <img src="{{ url_for('static', filename=student.profile_photo) }}" alt="Profile photo" style="width:96px; height:96px; object-fit:cover; border-radius:50%; border:1px solid var(--grey-200);">
+          </div>
+        {% endif %}
+        <input type="file" id="profile_photo" name="profile_photo" accept="image/*">
+      </div>
+      
+      <div class="program-notice">
+        <p class="muted">
+          <strong>Note:</strong> If you've reached 60% payment threshold this semester, program changes are disabled to maintain registration status.
+        </p>
+      </div>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

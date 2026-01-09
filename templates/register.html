@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Register - TCFL{% endblock %}
+
+{% block content %}
+<div class="page-container" style="max-width:500px;margin:40px auto;">
+  <div class="form-card" style="padding:32px 28px;border-radius:18px;box-shadow:0 4px 24px rgba(47,79,127,0.08);">
+    <div class="form-header" style="text-align:center;margin-bottom:24px;">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="TCFL Logo" style="width:70px;height:70px;border-radius:16px;box-shadow:0 2px 8px rgba(47,79,127,0.13);border:2px solid #e5e7eb;object-fit:cover;margin-bottom:12px;">
+      <h2 style="font-size:2rem;font-weight:800;color:#2f4f7f;margin-bottom:8px;">Student Registration</h2>
+      <p class="form-subtitle" style="color:#374151;font-size:1.08rem;">Join TelOne Center for Learning</p>
+    </div>
+    <div id="register-steps">
+      <div id="step-indicator" style="display:flex;justify-content:center;gap:18px;margin-bottom:24px;">
+        <span id="step1-indicator" style="font-weight:700;color:#2f4f7f;border-bottom:2px solid #2f4f7f;padding-bottom:2px;">1. Student Details</span>
+        <span id="step2-indicator" style="font-weight:700;color:#94a3b8;">2. Choose Program</span>
+        <span id="step3-indicator" style="font-weight:700;color:#94a3b8;">3. Confirm</span>
+      </div>
+      <form id="step1-form" method="POST" style="display:block;flex-direction:column;gap:18px;">
+        <input type="hidden" name="step" value="1">
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="full_name" style="font-weight:700;color:#2f4f7f;">Full Name <span class="required" style="color:#ef4444;">*</span></label>
+          <input type="text" id="full_name" name="full_name" required style="padding:12px 16px;border-radius:8px;border:2px solid #e5e7eb;font-size:1rem;box-shadow:0 1px 4px rgba(47,79,127,0.05);transition:border-color 0.2s,box-shadow 0.2s;">
+        </div>
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="email" style="font-weight:700;color:#2f4f7f;">Email Address <span class="required" style="color:#ef4444;">*</span></label>
+          <input type="email" id="email" name="email" required style="padding:12px 16px;border-radius:8px;border:2px solid #e5e7eb;font-size:1rem;box-shadow:0 1px 4px rgba(47,79,127,0.05);transition:border-color 0.2s,box-shadow 0.2s;">
+        </div>
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="password" style="font-weight:700;color:#2f4f7f;">Password <span class="required" style="color:#ef4444;">*</span></label>
+          <input type="password" id="password" name="password" required minlength="6">
+          <div id="password-strength" style="margin-top:6px;height:8px;border-radius:4px;background:#e5e7eb;overflow:hidden;">
+            <div id="strength-bar" style="height:100%;width:0;background:#ef4444;transition:width 0.3s,background 0.3s;"></div>
+          </div>
+          <div id="strength-text" style="font-size:0.95rem;margin-top:4px;color:#374151;"></div>
+        </div>
+        <button type="button" class="btn btn-primary" id="next-step" style="background:linear-gradient(90deg,#2f4f7f,#4f7ccf);color:#fff;font-weight:700;padding:12px 0;border-radius:8px;font-size:1.08rem;box-shadow:0 4px 16px rgba(47,79,127,0.13);transition:background 0.2s,box-shadow 0.2s;">Next</button>
+      </form>
+      <form id="step2-form" method="POST" style="display:none;flex-direction:column;gap:18px;">
+        <input type="hidden" name="step" value="2">
+        <input type="hidden" id="hidden_full_name" name="full_name">
+        <input type="hidden" id="hidden_email" name="email">
+        <input type="hidden" id="hidden_password" name="password">
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="course_code" style="font-weight:700;color:#2f4f7f;">Select Program <span class="required" style="color:#ef4444;">*</span></label>
+          <select id="course_code" name="course_code" required style="padding:12px 16px;border-radius:8px;border:2px solid #e5e7eb;font-size:1rem;box-shadow:0 1px 4px rgba(47,79,127,0.05);transition:border-color 0.2s,box-shadow 0.2s;">
+            <option value="">Choose a program...</option>
+            {% for code, info in courses.items() %}
+              <option value="{{ code }}">{{ info.name }} - US${{ info.tuition }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="entry-requirements" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:20px;margin-bottom:8px;">
+          <h4 style="color:#2f4f7f;margin-bottom:12px;font-weight:700;">Entry Requirements:</h4>
+          <ul style="list-style:none;padding-left:0;">
+            {% for req in entry_req %}
+              <li style="padding:4px 0;color:#374151;position:relative;padding-left:20px;">
+                <span style="color:#10b981;font-weight:bold;position:absolute;left:0;">✓</span>{{ req }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <button type="button" class="btn btn-primary" id="next-step2" style="background:linear-gradient(90deg,#2f4f7f,#4f7ccf);color:#fff;font-weight:700;padding:12px 0;border-radius:8px;font-size:1.08rem;box-shadow:0 4px 16px rgba(47,79,127,0.13);transition:background 0.2s,box-shadow 0.2s;">Next</button>
+        <button type="button" class="btn btn-secondary" id="prev-step" style="margin-top:8px;background:#e5e7eb;color:#2f4f7f;font-weight:700;padding:12px 0;border-radius:8px;font-size:1.08rem;">Back</button>
+      </form>
+      <form id="step3-form" method="POST" style="display:none;flex-direction:column;gap:18px;">
+        <input type="hidden" name="step" value="3">
+        <input type="hidden" id="confirm_full_name" name="full_name">
+        <input type="hidden" id="confirm_email" name="email">
+        <input type="hidden" id="confirm_password" name="password">
+        <input type="hidden" id="confirm_course_code" name="course_code">
+        <div class="summary-card" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:20px;margin-bottom:8px;">
+          <h4 style="color:#2f4f7f;margin-bottom:12px;font-weight:700;">Confirm Your Details</h4>
+          <ul style="list-style:none;padding-left:0;">
+            <li><strong>Name:</strong> <span id="summary_name"></span></li>
+            <li><strong>Email:</strong> <span id="summary_email"></span></li>
+            <li><strong>Program:</strong> <span id="summary_course"></span></li>
+          </ul>
+        </div>
+        <button type="submit" class="btn btn-primary" style="background:linear-gradient(90deg,#2f4f7f,#4f7ccf);color:#fff;font-weight:700;padding:12px 0;border-radius:8px;font-size:1.08rem;box-shadow:0 4px 16px rgba(47,79,127,0.13);transition:background 0.2s,box-shadow 0.2s;">Confirm & Register</button>
+        <button type="button" class="btn btn-secondary" id="prev-step2" style="margin-top:8px;background:#e5e7eb;color:#2f4f7f;font-weight:700;padding:12px 0;border-radius:8px;font-size:1.08rem;">Back</button>
+      </form>
+      <div class="form-footer" style="text-align:center;margin-top:16px;">
+        <p style="color:#374151;">Already have an account? <a href="{{ url_for('login') }}" style="color:#2f4f7f;text-decoration:underline;transition:color 0.2s;">Login here</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+// Multi-step registration logic with confirmation step
+document.addEventListener('DOMContentLoaded', function() {
+  const step1Form = document.getElementById('step1-form');
+  const step2Form = document.getElementById('step2-form');
+  const step3Form = document.getElementById('step3-form');
+  const nextBtn = document.getElementById('next-step');
+  const nextBtn2 = document.getElementById('next-step2');
+  const prevBtn = document.getElementById('prev-step');
+  const prevBtn2 = document.getElementById('prev-step2');
+  const step1Indicator = document.getElementById('step1-indicator');
+  const step2Indicator = document.getElementById('step2-indicator');
+  const step3Indicator = document.getElementById('step3-indicator');
+
+  nextBtn.addEventListener('click', function() {
+    // Validate step 1
+    if (!step1Form.checkValidity()) {
+      step1Form.reportValidity();
+      return;
+    }
+    // Copy values to hidden fields in step 2
+    document.getElementById('hidden_full_name').value = document.getElementById('full_name').value;
+    document.getElementById('hidden_email').value = document.getElementById('email').value;
+    document.getElementById('hidden_password').value = document.getElementById('password').value;
+    // Switch steps
+    step1Form.style.display = 'none';
+    step2Form.style.display = 'flex';
+    step1Indicator.style.color = '#94a3b8';
+    step1Indicator.style.borderBottom = 'none';
+    step2Indicator.style.color = '#2f4f7f';
+    step2Indicator.style.borderBottom = '2px solid #2f4f7f';
+  });
+
+  prevBtn.addEventListener('click', function() {
+    step2Form.style.display = 'none';
+    step1Form.style.display = 'flex';
+    step2Indicator.style.color = '#94a3b8';
+    step2Indicator.style.borderBottom = 'none';
+    step1Indicator.style.color = '#2f4f7f';
+    step1Indicator.style.borderBottom = '2px solid #2f4f7f';
+  });
+
+  nextBtn2.addEventListener('click', function() {
+    // Validate step 2
+    if (!step2Form.checkValidity()) {
+      step2Form.reportValidity();
+      return;
+    }
+    // Copy values to summary fields in step 3
+    document.getElementById('summary_name').innerText = document.getElementById('hidden_full_name').value;
+    document.getElementById('summary_email').innerText = document.getElementById('hidden_email').value;
+    document.getElementById('summary_course').innerText = document.getElementById('course_code').options[document.getElementById('course_code').selectedIndex].text;
+    // Copy hidden values to step 3 form for backend
+    document.getElementById('confirm_full_name').value = document.getElementById('hidden_full_name').value;
+    document.getElementById('confirm_email').value = document.getElementById('hidden_email').value;
+    document.getElementById('confirm_password').value = document.getElementById('hidden_password').value;
+    document.getElementById('confirm_course_code').value = document.getElementById('course_code').value;
+    // Switch steps
+    step2Form.style.display = 'none';
+    step3Form.style.display = 'flex';
+    step2Indicator.style.color = '#94a3b8';
+    step2Indicator.style.borderBottom = 'none';
+    step3Indicator.style.color = '#2f4f7f';
+    step3Indicator.style.borderBottom = '2px solid #2f4f7f';
+  });
+
+  prevBtn2.addEventListener('click', function() {
+    step3Form.style.display = 'none';
+    step2Form.style.display = 'flex';
+    step3Indicator.style.color = '#94a3b8';
+    step3Indicator.style.borderBottom = 'none';
+    step2Indicator.style.color = '#2f4f7f';
+    step2Indicator.style.borderBottom = '2px solid #2f4f7f';
+  });
+});
+
+// Password strength meter
+function checkPasswordStrength(pw) {
+  let score = 0;
+  if (!pw) return score;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  return score;
+}
+
+const passwordInput = document.getElementById('password');
+const strengthBar = document.getElementById('strength-bar');
+const strengthText = document.getElementById('strength-text');
+
+passwordInput.addEventListener('input', function() {
+  const val = passwordInput.value;
+  const score = checkPasswordStrength(val);
+  let width = score * 20;
+  let color = '#ef4444';
+  let text = 'Too weak';
+  if (score >= 4) { color = '#f59e42'; text = 'Medium'; }
+  if (score >= 5) { color = '#10b981'; text = 'Strong'; }
+  strengthBar.style.width = width + '%';
+  strengthBar.style.background = color;
+  strengthText.textContent = text;
+});
+</script>
+{% endblock %}

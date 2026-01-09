@@ -1,0 +1,32 @@
+{% extends "base_telone.html" %}
+{% block title %}Payment — TelOne{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Simulated QR Payment</h2>
+  <p>Scan the QR code below with your mobile payment app (sandbox simulation).</p>
+  <div class="card">
+    <h3>Invoice</h3>
+    <table class="table">
+      <tr><th>Student</th><td>{{ student.fullname if student.fullname else student.name }}</td></tr>
+      <tr><th>Reg No</th><td>{{ student.reg_no if student.reg_no else student.regno }}</td></tr>
+      <tr><th>Amount</th><td>{{ amount_due if amount_due else '0.00' }}</td></tr>
+    </table>
+    <div class="qr-wrap">
+      <div class="qr-box" role="img" aria-label="QR code" data-qrcode="{{ 'telone-sandbox://pay?reg=' + (student.reg_no if student.reg_no else student.regno) + '&amount=' + (amount_due|string) }}"></div>
+      <div>
+        <p><strong>Instructions</strong></p>
+        <ol>
+          <li>Open your mobile payment app.</li>
+          <li>Scan the QR code shown.</li>
+          <li>When payment completes in your app, click <em>Confirm Payment</em> below.</li>
+        </ol>
+        <form method="post" action="{{ url_for('confirm_payment') }}">
+          <input type="hidden" name="reg" value="{{ student.reg_no if student.reg_no else student.regno }}">
+          <input type="hidden" name="amount" value="{{ amount_due if amount_due else '0.00' }}">
+          <button class="btn btn-primary" type="submit" data-sim-pay data-action="{{ url_for('confirm_payment') }}">Confirm Payment</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

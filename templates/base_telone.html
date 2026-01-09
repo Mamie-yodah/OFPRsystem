@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}TelOne Center for Learning{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/telone.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/telone.js') }}" defer></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header class="topbar" role="banner">
+    <div class="container">
+      <a class="brand" href="{{ url_for('index') }}">TelOne Center for Learning</a>
+      <nav aria-label="Main navigation">
+        <a href="{{ url_for('index') }}">Home</a> |
+        <a href="{{ url_for('register') }}">Register</a> |
+        <a href="{{ url_for('status') }}">My Status</a> |
+        <a href="{{ url_for('payment') }}">Pay</a>
+      </nav>
+    </div>
+  </header>
+  <main class="container" role="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alerts" aria-live="polite">
+          {% for category, msg in messages %}
+            <div class="alert {{ category }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer">
+    <div class="container">© TelOne Center for Learning — Responsive prototype</div>
+  </footer>
+</body>
+</html>

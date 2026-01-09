@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Status - TCFL{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>Registration Status</h2>
+      <p class="form-subtitle">Your current semester status</p>
+    </div>
+    
+    <div class="status-details">
+      <div class="status-row">
+        <span class="label">Program:</span>
+        <span class="value">{{ course.name if course else current_user.course_code }}</span>
+      </div>
+      
+      <div class="status-row">
+        <span class="label">Semester:</span>
+        <span class="value">{{ semester }}</span>
+      </div>
+      
+      <div class="status-row">
+        <span class="label">Full Tuition:</span>
+        <span class="value">US${{ '%.2f'|format(tuition) }}</span>
+      </div>
+      
+      <div class="status-row">
+        <span class="label">Total Paid:</span>
+        <span class="value">US${{ '%.2f'|format(total_paid) }}</span>
+      </div>
+      
+      <div class="status-row">
+        <span class="label">Required (60%):</span>
+        <span class="value">US${{ '%.2f'|format(min_required) }}</span>
+      </div>
+    </div>
+    
+    <div class="registration-status">
+      {% if is_ok %}
+        <div class="status-badge status-ok">
+          <span class="status-icon">✅</span>
+          <span>You are registered for this semester</span>
+        </div>
+      {% else %}
+        <div class="status-badge status-pending">
+          <span class="status-icon">⚠️</span>
+          <span>Registration pending - payment required</span>
+        </div>
+        <div class="remaining-amount">
+          <p>Remaining to pay: <strong>US${{ '%.2f'|format(min_required - total_paid) }}</strong></p>
+        </div>
+      {% endif %}
+    </div>
+    
+    <div class="status-actions">
+      <a href="{{ url_for('payment') }}" class="btn btn-primary">Make Payment</a>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

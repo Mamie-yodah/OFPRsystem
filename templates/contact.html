@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Contact Us – TelOne Centre for Learning{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/contact.css') }}">
+<main class="contact-main">
+  <section class="hero smart-card">
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="TCFL Logo" class="contact-logo" />
+    <h1 class="hero-title">GET IN TOUCH WITH US</h1>
+    <p class="hero-desc">We're here to help! Reach us by phone, email, WhatsApp, or use the form below.</p>
+  </section>
+  <div class="contact-flex">
+    <section class="contact-details smart-card" aria-labelledby="contact-heading">
+      <h2 id="contact-heading"><span class="icon">📞</span> Contact Information</h2>
+      <ul class="details-grid">
+        <li><span class="icon">📍</span> <strong>Address:</strong> <address>Corner Samora Machel Ave &amp; Hampden St, Belvedere, Harare, Zimbabwe</address></li>
+        <li><span class="icon">📞</span> <strong>Phone:</strong> <a href="tel:+263242780129">+263 (024) 278 0126‑9</a></li>
+        <li><span class="icon">✉</span> <strong>Email:</strong> <a href="mailto:studentaffairs@telone.co.zw">studentaffairs@telone.co.zw</a></li>
+        <li><span class="icon">💬</span> <strong>WhatsApp:</strong> <a href="https://wa.me/263778912876" target="_blank" rel="noopener">+263 77 891 2876</a></li>
+        <li><span class="icon">⏱</span> <strong>Office Hours:</strong> Mon–Fri, 08:00–17:00 CAT</li>
+        <li><span class="icon">⏳</span> <strong>Response Time:</strong> 24–48 hours</li>
+      </ul>
+      <div class="map-frame">
+        <iframe title="TCFL Harare location map" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3798.4!2d31.0522!3d-17.8252!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTfCsDQ5JzMwLjciUyAzMcKwMDMnMDcuOSJF!5e0!3m2!1sen!2szw!4v1234567890" allowfullscreen loading="lazy"></iframe>
+      </div>
+    </section>
+    <section class="contact-form smart-card" aria-labelledby="form-heading">
+      <h2 id="form-heading"><span class="icon">📝</span> Send Us a Message</h2>
+      <form method="POST" action="{{ url_for('contact') }}" novalidate style="display:flex;flex-direction:column;gap:18px;">
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="full_name" style="font-weight:700;color:#2f4f7f;">Full Name <span class="req" style="color:#ef4444;">*</span></label>
+          <input type="text" id="full_name" name="full_name" required placeholder="Your full name" style="padding:12px 16px;border-radius:8px;border:2px solid #e5e7eb;font-size:1rem;box-shadow:0 1px 4px rgba(47,79,127,0.05);transition:border-color 0.2s,box-shadow 0.2s;">
+        </div>
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="email" style="font-weight:700;color:#2f4f7f;">Email Address <span class="req" style="color:#ef4444;">*</span></label>
+          <input type="email" id="email" name="email" required placeholder="you@email.com" style="padding:12px 16px;border-radius:8px;border:2px solid #e5e7eb;font-size:1rem;box-shadow:0 1px 4px rgba(47,79,127,0.05);transition:border-color 0.2s,box-shadow 0.2s;">
+        </div>
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="phone" style="font-weight:700;color:#2f4f7f;">Phone <span class="opt" style="color:#6b7280;">(optional)</span></label>
+          <input type="tel" id="phone" name="phone" inputmode="tel" pattern="[0-9]{7,15}" placeholder="e.g. 0771234567" style="padding:12px 16px;border-radius:8px;border:2px solid #e5e7eb;font-size:1rem;box-shadow:0 1px 4px rgba(47,79,127,0.05);transition:border-color 0.2s,box-shadow 0.2s;">
+        </div>
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="contact_method" style="font-weight:700;color:#2f4f7f;">Send To</label>
+          <select id="contact_method" name="contact_method" required style="padding:12px 16px;border-radius:8px;border:2px solid #e5e7eb;font-size:1rem;box-shadow:0 1px 4px rgba(47,79,127,0.05);transition:border-color 0.2s,box-shadow 0.2s;">
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+            <option value="whatsapp">WhatsApp</option>
+          </select>
+        </div>
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="inquiry_type" style="font-weight:700;color:#2f4f7f;">Type of Inquiry</label>
+          <select id="inquiry_type" name="inquiry_type" style="padding:12px 16px;border-radius:8px;border:2px solid #e5e7eb;font-size:1rem;box-shadow:0 1px 4px rgba(47,79,127,0.05);transition:border-color 0.2s,box-shadow 0.2s;">
+            <option value="">— Select —</option>
+            <option>Admission / Registration</option>
+            <option>Fee Payment Issue</option>
+            <option>Technical Support</option>
+            <option>General Feedback</option>
+          </select>
+        </div>
+        <div class="form-group" style="display:flex;flex-direction:column;gap:6px;">
+          <label for="message" style="font-weight:700;color:#2f4f7f;">Your Message <span class="req" style="color:#ef4444;">*</span></label>
+          <textarea id="message" name="message" rows="5" required placeholder="Type your message here..." style="padding:12px 16px;border-radius:8px;border:2px solid #e5e7eb;font-size:1rem;box-shadow:0 1px 4px rgba(47,79,127,0.05);transition:border-color 0.2s,box-shadow 0.2s;"></textarea>
+        </div>
+        <div class="form-footer" style="text-align:right;">
+          <button type="submit" class="btn primary" style="background:linear-gradient(90deg,#2f4f7f,#4f7ccf);color:#fff;font-weight:700;padding:12px 28px;border-radius:8px;font-size:1.08rem;box-shadow:0 4px 16px rgba(47,79,127,0.13);transition:background 0.2s,box-shadow 0.2s;">Submit Message</button>
+        </div>
+        <p class="privacy-note" style="font-size:0.95rem;color:#6b7280;margin-top:12px;">Your message is protected and will only be used to respond to your request. <a href="{{ url_for('index') }}" style="color:#2f4f7f;text-decoration:underline;transition:color 0.2s;">Learn more</a>.</p>
+      </form>
+    </section>
+  </div>
+</main>
+{% endblock %}

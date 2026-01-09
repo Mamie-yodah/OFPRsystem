@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Home - TelOne Center for Learning{% endblock %}
+
+{% block content %}
+<!-- Updated hero section with professional styling -->
+<section class="hero">
+  <div class="hero-content">
+  <img src="{{ url_for('static', filename='images/logo.png') }}" alt="TelOne Logo" class="hero-logo">
+    <h1 class="hero-title">TelOne Center for Learning</h1>
+    <p class="hero-subtitle">Empowering the next generation of innovators. Register for your semester, pay securely, and access quality education with ease through our Online Fee Payment and Registration System.</p>
+    <div class="hero-buttons">
+      <a href="{{ url_for('register') }}" class="btn btn-primary">Register Now</a>
+      <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+    </div>
+  </div>
+</section>
+
+<!-- Updated sections with card-based layout -->
+<section class="content-section">
+  <h2 class="section-title">Why Choose TCFL?</h2>
+  <div class="cards-grid">
+    <div class="feature-card">
+      <div class="card-icon">🏆</div>
+      <h3>Accredited Programs</h3>
+      <p>We offer industry-recognized degrees and diplomas in Telecommunications, IT, Data Science, and more.</p>
+    </div>
+    <div class="feature-card">
+      <div class="card-icon">💼</div>
+      <h3>Career Focused</h3>
+      <p>Learn skills aligned with the job market and boost your employability from day one.</p>
+    </div>
+    <div class="feature-card">
+      <div class="card-icon">🌐</div>
+      <h3>Flexible Learning</h3>
+      <p>Access our learning portal and payment system from anywhere, anytime, without hassle.</p>
+    </div>
+    <div class="feature-card">
+      <div class="card-icon">🤝</div>
+      <h3>Student Support</h3>
+      <p>Dedicated support team and online helpdesk to assist with registration, payments, and academics.</p>
+    </div>
+  </div>
+</section>
+
+<section class="content-section">
+  <h2 class="section-title">Our Services & Support</h2>
+  <div class="cards-grid">
+    <div class="feature-card">
+      <div class="card-icon">💻</div>
+      <h3>Online Registration</h3>
+      <p>Register for semesters and select courses online in a few clicks.</p>
+    </div>
+    <div class="feature-card">
+      <div class="card-icon">💳</div>
+      <h3>Secure Payments</h3>
+      <p>Pay via PayNow (Bank) or EcoCash (Mobile) with QR code support.</p>
+    </div>
+    <div class="feature-card">
+      <div class="card-icon">📩</div>
+      <h3>Email Notifications</h3>
+      <p>Get instant emails for successful registration and fee payments.</p>
+    </div>
+    <div class="feature-card">
+      <div class="card-icon">📞</div>
+      <h3>24/7 Support</h3>
+      <p>Our helpdesk and technical team are always ready to assist students.</p>
+    </div>
+  </div>
+</section>
+
+<section class="content-section">
+  <h2 class="section-title">How It Works</h2>
+  <div class="steps-container">
+    <div class="step-card">
+      <div class="step-number">1</div>
+      <h4>Register</h4>
+      <p>Create your account and fill in your personal details.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">2</div>
+      <h4>Select Course</h4>
+      <p>Choose your preferred degree or diploma program for the semester.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">3</div>
+      <h4>Pay Fees</h4>
+      <p>Pay securely using PayNow or EcoCash with a generated QR code.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-number">4</div>
+      <h4>Confirmation</h4>
+      <p>Receive instant email notification and receipt of your payment.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

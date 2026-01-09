@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Admin | Audit Logs{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Audit Logs</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Actor</th>
+        <th>Action</th>
+        <th>Subject ID</th>
+        <th>Metadata</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td>{{ log.id }}</td>
+        <td>{{ log.actor }}</td>
+        <td>{{ log.action }}</td>
+        <td>{{ log.subject_id or '—' }}</td>
+        <td>{{ log.metadata or '—' }}</td>
+        <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">No audit logs yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a class="btn btn-secondary" href="{{ url_for('admin_dashboard') }}">Back</a>
+  </div>
+{% endblock %}
+
+

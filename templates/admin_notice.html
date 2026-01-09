@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Send Notice | TCFL{% endblock %}
+{% block content %}
+<div class="form-card">
+	<div class="form-header">
+		<h2>Send Notice to Students</h2>
+		<p class="muted">All students will receive this notice instantly.</p>
+	</div>
+	<form method="post" class="form">
+		<label for="title">Title</label>
+		<input name="title" id="title" required class="input">
+		<label for="message">Message</label>
+		<textarea name="message" id="message" rows="6" required class="input"></textarea>
+		<button class="btn" type="submit">Send Notice</button>
+	</form>
+</div>
+{% endblock %}

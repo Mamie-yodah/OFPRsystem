@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard - TCFL{% endblock %}
+
+{% block content %}
+<div class="student-dashboard-layout">
+  <!-- Sidebar Navigation -->
+  <div class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <div class="profile-section">
+        {% if current_user.profile_photo %}
+          <img src="{{ url_for('static', filename=current_user.profile_photo) }}" alt="Profile" class="profile-avatar">
+        {% else %}
+          <div class="profile-avatar-placeholder">{{ (current_user.full_name[0] if current_user.full_name else 'U')|upper }}</div>
+        {% endif %}
+        <div class="profile-info">
+          <h3 class="profile-name">{{ current_user.full_name }}</h3>
+          <p class="profile-email">{{ current_user.email }}</p>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <h4 class="nav-section-title">Dashboard</h4>
+        <a href="{{ url_for('dashboard') }}" class="nav-link active">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-text">Home</span>
+        </a>
+        <a href="{{ url_for('status') }}" class="nav-link">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Registration Status</span>
+        </a>
+        <a href="{{ url_for('payment') }}" class="nav-link">
+          <span class="nav-icon">💳</span>
+          <span class="nav-text">Make Payment</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <h4 class="nav-section-title">Academic</h4>
+        <a href="#" class="nav-link">
+          <span class="nav-icon">📅</span>
+          <span class="nav-text">Calendar</span>
+        </a>
+        <a href="#" class="nav-link">
+          <span class="nav-icon">📚</span>
+          <span class="nav-text">Course Materials</span>
+        </a>
+        <a href="#" class="nav-link">
+          <span class="nav-icon">📝</span>
+          <span class="nav-text">Assignments</span>
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <h4 class="nav-section-title">Account</h4>
+        <a href="{{ url_for('profile') }}" class="nav-link">
+          <span class="nav-icon">👤</span>
+          <span class="nav-text">Profile Settings</span>
+        </a>
+        <a href="#" class="nav-link">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-text">Preferences</span>
+        </a>
+        <a href="{{ url_for('logout') }}" class="nav-link logout-link">
+          <span class="nav-icon">🚪</span>
+          <span class="nav-text">Logout</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Notices Quick Access -->
+    {% if all_notices %}
+    <div class="sidebar-notices">
+      <div class="notices-header">
+        <h4 class="nav-section-title">📢 Notices</h4>
+        <span class="notices-count">{{ all_notices|length }}</span>
+      </div>
+      <div class="notices-preview">
+        {% for n in all_notices[:3] %}
+        <div class="notice-preview-item">
+          <div class="notice-preview-title">{{ n.title }}</div>
+          <div class="notice-preview-date">{{ n.created_at.strftime('%b %d') }}</div>
+        </div>
+        {% endfor %}
+        {% if all_notices|length > 3 %}
+        <div class="notice-preview-more">
+          <a href="#notices-section" class="view-all-notices">View all {{ all_notices|length }} notices</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="dashboard-main-content">
+    <!-- Welcome Header -->
+    <div class="content-header">
+      <div class="welcome-section">
+        <h1>Welcome back, {{ current_user.full_name }}</h1>
+        <p class="welcome-subtitle">{{ semester }} • {{ course.name if course else current_user.course_code }}</p>
+      </div>
+      <div class="quick-actions">
+        <a href="{{ url_for('payment') }}" class="quick-action-btn primary">
+          <span class="btn-icon">💳</span>
+          <span class="btn-text">Pay Fees</span>
+        </a>
+        <a href="{{ url_for('status') }}" class="quick-action-btn secondary">
+          <span class="btn-icon">📊</span>
+          <span class="btn-text">View Status</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Dashboard Cards Grid -->
+    <div class="dashboard-cards-grid">
+      <!-- Registration Status Card -->
+      <div class="dashboard-card status-card">
+        <div class="card-header">
+          <h3>Registration Status</h3>
+          <div class="status-badge {{ 'status-ok' if status_ok else 'status-pending' }}">
+            {% if status_ok %}
+              ✓ Registered
+            {% else %}
+              ⏳ Pending
+            {% endif %}
+          </div>
+        </div>
+        <div class="card-content">
+          <div class="status-info">
+            <div class="status-item">
+              <span class="status-label">Total Paid:</span>
+              <span class="status-value">US${{ "%.2f"|format(total_paid) }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-label">Required:</span>
+              <span class="status-value">US${{ "%.2f"|format(min_required) }}</span>
+            </div>
+            {% if not status_ok %}
+            <div class="status-item remaining">
+              <span class="status-label">Remaining:</span>
+              <span class="status-value">US${{ "%.2f"|format(min_required - total_paid) }}</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Information Card -->
+      <div class="dashboard-card course-card">
+        <div class="card-header">
+          <h3>Course Information</h3>
+        </div>
+        <div class="card-content">
+          {% if course %}
+            <div class="course-details">
+              <h4>{{ course.name }}</h4>
+              <div class="course-meta">
+                <div class="meta-item">
+                  <span class="meta-label">Duration:</span>
+                  <span class="meta-value">{{ course.duration }}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Tuition:</span>
+                  <span class="meta-value">US${{ "%.2f"|format(course.tuition) }}</span>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <p class="muted">Course information not available</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Payment History Card -->
+      <div class="dashboard-card payment-card">
+        <div class="card-header">
+          <h3>Recent Payments</h3>
+          <a href="{{ url_for('status') }}" class="view-more">View All</a>
+        </div>
+        <div class="card-content">
+          {% if current_user.payments %}
+            <div class="payment-list">
+              {% for payment in current_user.payments[-3:] %}
+              <div class="payment-item">
+                <div class="payment-info">
+                  <span class="payment-amount">US${{ "%.2f"|format(payment.amount) }}</span>
+                  <span class="payment-date">{{ payment.created_at.strftime('%b %d, %Y') }}</span>
+                </div>
+                <div class="payment-status success">
+                  Completed
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="muted">No payments yet</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Calendar Card -->
+      <div class="dashboard-card calendar-card">
+        <div class="card-header">
+          <h3>Upcoming Events</h3>
+          <a href="#" class="view-more">View Calendar</a>
+        </div>
+        <div class="card-content">
+          <div class="calendar-preview">
+            <div class="calendar-event">
+              <div class="event-date">
+                <span class="event-day">15</span>
+                <span class="event-month">Sep</span>
+              </div>
+              <div class="event-details">
+                <div class="event-title">Registration Deadline</div>
+                <div class="event-time">End of Day</div>
+              </div>
+            </div>
+            <div class="calendar-event">
+              <div class="event-date">
+                <span class="event-day">20</span>
+                <span class="event-month">Sep</span>
+              </div>
+              <div class="event-details">
+                <div class="event-title">Classes Begin</div>
+                <div class="event-time">9:00 AM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notices Section -->
+    <div id="notices-section" class="notices-section">
+      <div class="section-header">
+        <h2>📢 Important Notices</h2>
+        <span class="notices-count">{{ all_notices|length }} notice{{ 's' if all_notices|length != 1 else '' }}</span>
+      </div>
+      <div class="notices-content">
+        {% if all_notices %}
+          <div class="notices-list">
+            {% for n in all_notices %}
+            <div class="notice-item">
+              <div class="notice-header">
+                <h4 class="notice-title">{{ n.title }}</h4>
+                <span class="notice-date">{{ n.created_at.strftime('%b %d, %Y') }}</span>
+              </div>
+              <div class="notice-message">{{ n.message }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="no-notices">
+            <div class="no-notices-icon">📭</div>
+            <p>No notices available at this time.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

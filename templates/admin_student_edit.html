@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Admin | Edit Student{% endblock %}
+{% block content %}
+<div class="page-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>Edit Student</h2>
+    </div>
+    <form method="POST">
+      <div class="form-group">
+        <label for="full_name">Full Name</label>
+        <input id="full_name" name="full_name" value="{{ student.full_name }}" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email" value="{{ student.email }}" required>
+      </div>
+      <div class="form-group">
+        <label for="course_code">Program</label>
+        <select id="course_code" name="course_code">
+          {% for code, c in courses.items() %}
+          <option value="{{ code }}" {% if code == student.course_code %}selected{% endif %}>{{ c.name }} - US${{ c.tuition }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="contact_number">Contact Number</label>
+        <input id="contact_number" name="contact_number" value="{{ student.contact_number or '' }}">
+      </div>
+      <div class="form-group">
+        <label><input type="checkbox" name="is_verified" {% if student.is_verified %}checked{% endif %}> Verified</label>
+      </div>
+      <div class="form-actions" style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn btn-secondary" href="{{ url_for('admin_students') }}">Back</a>
+      </div>
+    </form>
+    <hr/>
+    <h3>Actions</h3>
+    <form method="POST" action="{{ url_for('admin_student_reset_password', student_id=student.id) }}" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+      <input type="password" name="new_password" placeholder="New password" required>
+      <button class="btn btn-secondary" type="submit">Reset Password</button>
+    </form>
+    <form method="POST" action="{{ url_for('admin_student_force_logout', student_id=student.id) }}" style="margin-top:10px;">
+      <button class="btn btn-danger" type="submit" onclick="return confirm('Force logout this user?')">Force Logout</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+

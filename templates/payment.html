@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Pay Fees - TCFL{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2>Pay Fees</h2>
+      <p class="form-subtitle">Secure payment via PayNow or EcoCash</p>
+    </div>
+    
+    <div class="payment-info">
+      <p class="tuition-display">Tuition this semester: <strong>US${{ '%.2f'|format(tuition) }}</strong></p>
+    </div>
+    
+    <div class="payment-form">
+      <div class="form-group">
+        <label for="amount">Amount (USD)</label>
+        <input id="amount" type="number" min="1" step="0.01" placeholder="Enter amount to pay">
+      </div>
+      <button id="create" class="btn btn-primary">Generate Payment QR Code</button>
+    </div>
+    
+    <div id="qr-area" class="qr-section" style="display:none;">
+      <h3>Scan to Pay</h3>
+      <div id="qr" class="qr-code"></div>
+      <div class="payment-link">
+        <p class="muted">Or open: <a id="plink" href="#" target="_blank" rel="noopener">Payment Link</a></p>
+        <p class="muted">After paying, this page polls for confirmation automatically.</p>
+      </div>
+      <button id="check" class="btn btn-secondary">Check Payment Status</button>
+      <div id="receipt-area" style="margin-top:15px; display:none;">
+        <a id="receipt-link" href="#" class="btn btn-success" target="_blank">Download Receipt PDF</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Temporary PayNow Page -->
+<div id="paynow-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000;">
+  <div style="background:#fff; padding:30px; border-radius:10px; width:300px; margin:10% auto; text-align:center; position:relative;">
+    <h2>PayNow Demo</h2>
+    <p>Reference: <strong id="modal-ref"></strong></p>
+    <p>Amount: <strong id="modal-amount"></strong></p>
+    <button id="modal-pay" class="btn btn-primary">Pay Now</button>
+    <button id="modal-close" style="margin-top:15px; background:#ccc; color:#000;">Close</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/kjua@0.1.1/dist/kjua.min.js"></script>
+
+<script>
+const createBtn = document.getElementById('create');
+const amountEl = document.getElementById('amount');
+const qrArea = document.getElementById('qr-area');
+const qrDiv = document.getElementById('qr');
+const plink = document.getElementById('plink');
+const checkBtn = document.getElementById('check');
+const receiptArea = document.getElementById('receipt-area');
+const receiptLink = document.getElementById('receipt-link');
+
+const paynowModal = document.getElementById('paynow-modal');
+const modalRef = document.getElementById('modal-ref');
+const modalAmount = document.getElementById('modal-amount');
+const modalPay = document.getElementById('modal-pay');
+const modalClose = document.getElementById('modal-close');
+
+let currentRef = null;
+let currentAmount = null;
+
+// Show QR code and modal link
+function showQR(ref, amount) {
+  qrDiv.innerHTML = '';
+  currentRef = ref;
+  currentAmount = amount;
+
+  const url = `#`;  // Not real URL, will open modal
+
+  const qr = kjua({
+    text: url,
+    size: 200,
+    fill: '#000000',
+    back: '#ffffff',
+    rounded: 8,
+    quiet: 2,
+    render: 'image'
+  });
+
+  qr.style.cursor = 'pointer';
+  qr.onclick = () => openPayNowModal(ref, amount);
+
+  qrDiv.appendChild(qr);
+
+  plink.href = '#';
+  plink.textContent = `Click to Pay $${amount}`;
+  plink.onclick = (e) => { e.preventDefault(); openPayNowModal(ref, amount); };
+}
+
+// Open the temporary PayNow modal
+function openPayNowModal(ref, amount) {
+  modalRef.textContent = ref;
+  modalAmount.textContent = `$${amount.toFixed(2)}`;
+  paynowModal.style.display = 'block';
+}
+
+// Close modal
+modalClose.onclick = () => { paynowModal.style.display = 'none'; }
+
+// Simulate PayNow payment
+modalPay.onclick = async () => {
+  try {
+    const res = await fetch(`/api/paynow/${currentRef}`, { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'paid') {
+      alert('Payment successful!');
+      paynowModal.style.display = 'none';
+      showReceiptLink(currentRef);
+    }
+  } catch (err) {
+    alert('Payment failed.');
+    console.error(err);
+  }
+}
+
+// Generate QR and payment ref
+createBtn.addEventListener('click', async () => {
+  const amount = parseFloat(amountEl.value);
+  if (!amount || amount <= 0) {
+    alert('Please enter a valid amount');
+    return;
+  }
+
+  createBtn.disabled = true;
+  createBtn.textContent = 'Generating...';
+
+  try {
+    const res = await fetch('{{ url_for("api_create_payment") }}', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ amount })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || 'Payment creation failed');
+      return;
+    }
+    showQR(data.ref, amount);
+    qrArea.style.display = 'block';
+    poll();
+  } catch (err) {
+    alert('Network error.');
+    console.error(err);
+  } finally {
+    createBtn.disabled = false;
+    createBtn.textContent = 'Generate Payment QR Code';
+  }
+});
+
+// Poll for payment status
+async function poll() {
+  if (!currentRef) return;
+  try {
+    const res = await fetch(`/api/check_payment/${currentRef}`);
+    const d = await res.json();
+    if (d.status === 'paid') {
+      alert('Payment received successfully!');
+      showReceiptLink(currentRef);
+      // window.location.href = '{{ url_for("status") }}';  // Optional redirect
+    } else {
+      setTimeout(poll, 5000);
+    }
+  } catch (err) {
+    console.error(err);
+    setTimeout(poll, 10000);
+  }
+}
+
+checkBtn.addEventListener('click', poll);
+
+// Show receipt download link
+function showReceiptLink(ref) {
+  receiptLink.href = `/receipt/${ref}`;
+  receiptArea.style.display = 'block';
+}
+</script>
+{% endblock %}
+¬

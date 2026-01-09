@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - TCFL{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard-container">
+  <!-- Admin Header -->
+  <div class="admin-header">
+    <div class="header-content">
+      <div class="admin-title-section">
+        <h1>Admin Dashboard</h1>
+        <p class="admin-subtitle">TelOne Center for Learning Management</p>
+        <div class="semester-info">
+          <span class="semester-badge">{{ semester }}</span>
+        </div>
+      </div>
+      <div class="admin-actions">
+        <a href="{{ url_for('admin_logout') }}" class="admin-logout-btn">
+          <span class="logout-icon">🚪</span>
+          <span class="logout-text">Logout</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Admin Actions -->
+  <div class="admin-quick-actions">
+    <div class="action-grid">
+      <a href="{{ url_for('admin_notice') }}" class="admin-action-btn primary">
+        <div class="action-icon">📢</div>
+        <div class="action-content">
+          <h3>Send Notice</h3>
+          <p>Broadcast message to all students</p>
+        </div>
+      </a>
+      <a href="{{ url_for('admin_students') }}" class="admin-action-btn secondary">
+        <div class="action-icon">👥</div>
+        <div class="action-content">
+          <h3>Manage Students</h3>
+          <p>View, edit, and manage student accounts</p>
+        </div>
+      </a>
+      <a href="{{ url_for('admin_report') }}" class="admin-action-btn secondary">
+        <div class="action-icon">📊</div>
+        <div class="action-content">
+          <h3>Payment Report</h3>
+          <p>Download comprehensive payment data</p>
+        </div>
+      </a>
+      <a href="{{ url_for('admin_audit') }}" class="admin-action-btn secondary">
+        <div class="action-icon">📋</div>
+        <div class="action-content">
+          <h3>Audit Logs</h3>
+          <p>View system activity and changes</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Statistics Overview -->
+  <div class="stats-overview">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-content">
+          <h3>Total Students</h3>
+          <div class="stat-value">{{ total_students }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <h3>Registered Students</h3>
+          <div class="stat-value">{{ registered_students }}</div>
+          <div class="stat-percentage">{{ "%.1f"|format((registered_students / total_students * 100) if total_students > 0 else 0) }}%</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <h3>Total Payments</h3>
+          <div class="stat-value">US${{ '%.2f'|format(total_payments) }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div class="stat-content">
+          <h3>Registration Rate</h3>
+          <div class="stat-value">{{ "%.1f"|format((registered_students / total_students * 100) if total_students > 0 else 0) }}%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="admin-main-grid">
+    <!-- Students Table -->
+    <div class="admin-section students-section">
+      <div class="section-header">
+        <h2>Student Overview</h2>
+        <a href="{{ url_for('admin_students') }}" class="view-all-btn">View All →</a>
+      </div>
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Program</th>
+              <th>Paid</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in rows[:10] %}
+            <tr class="{% if r.registered %}registered{% else %}unregistered{% endif %}">
+              <td class="student-id">{{ r.id }}</td>
+              <td class="student-name">{{ r.name }}</td>
+              <td class="student-email">{{ r.email }}</td>
+              <td class="student-program">{{ r.course }}</td>
+              <td class="student-paid">US${{ '%.2f'|format(r.total_paid) }}</td>
+              <td class="student-status">
+                {% if r.registered %}
+                  <span class="status-badge status-ok">✓ Registered</span>
+                {% else %}
+                  <span class="status-badge status-pending">⏳ Pending</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% if rows|length > 10 %}
+          <div class="table-footer">
+            <p class="table-note">Showing first 10 of {{ rows|length }} students</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="admin-section activity-section">
+      <div class="section-header">
+        <h2>Recent Activity</h2>
+      </div>
+      <div class="activity-tabs">
+        <div class="tab-content">
+          <!-- Recent Payments -->
+          <div class="activity-group">
+            <h3>💳 Recent Payments</h3>
+            <div class="activity-list">
+              {% for p in recent_payments[:5] %}
+              <div class="activity-item">
+                <div class="activity-content">
+                  <div class="activity-title">{{ p.student.full_name }}</div>
+                  <div class="activity-details">Paid US${{ '%.2f'|format(p.amount) }}</div>
+                </div>
+                <div class="activity-time">{{ p.created_at.strftime('%b %d, %H:%M') }}</div>
+              </div>
+              {% else %}
+              <div class="no-activity">
+                <p>No recent payments</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Recent Notices -->
+          <div class="activity-group">
+            <h3>📢 Recent Notices</h3>
+            <div class="activity-list">
+              {% for n in recent_notices[:3] %}
+              <div class="activity-item">
+                <div class="activity-content">
+                  <div class="activity-title">{{ n.title }}</div>
+                  <div class="activity-details">{{ n.message[:50] }}{% if n.message|length > 50 %}...{% endif %}</div>
+                </div>
+                <div class="activity-time">{{ n.created_at.strftime('%b %d') }}</div>
+              </div>
+              {% else %}
+              <div class="no-activity">
+                <p>No recent notices</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- New Students -->
+          <div class="activity-group">
+            <h3>👤 New Students</h3>
+            <div class="activity-list">
+              {% for s in recent_students[:3] %}
+              <div class="activity-item">
+                <div class="activity-content">
+                  <div class="activity-title">{{ s.full_name }}</div>
+                  <div class="activity-details">{{ s.email }}</div>
+                </div>
+                <div class="activity-time">{{ s.created_at.strftime('%b %d') if s.created_at else 'Recent' }}</div>
+              </div>
+              {% else %}
+              <div class="no-activity">
+                <p>No new students</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
