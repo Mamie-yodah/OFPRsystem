@@ -324,10 +324,15 @@ def generate_pdf_receipt(student, payment):
 
 # Mock paynow
 class MockPayNow:
-    def create_payment(self, email, amount):
+    def create_payment(self, email, amount, student_name=None, student_id=None):
         import random, time
         ts = int(time.time())
-        ref = f"PN{ts}{random.randint(100,999)}"
+        if student_name and student_id:
+            # Make ref descriptive: StudentID_Name_Timestamp
+            safe_name = student_name.replace(' ', '_').replace('/', '').replace('\\', '')[:20]  # limit length
+            ref = f"{student_id}_{safe_name}_{ts}"
+        else:
+            ref = f"PN{ts}{random.randint(100,999)}"
         payment_url = f"https://paynow.co.zw/sandbox/pay?email={email}&amount={amount}&ref={ref}"
         return {"ref": ref, "payment_url": payment_url, "poll_url": f"/api/check_payment/{ref}"}
 
@@ -537,7 +542,9 @@ def api_create_payment():
     try: amount=float(data.get('amount') or 0)
     except: amount=0.0
     if amount<=0: return jsonify({"error":"Invalid amount"}),400
-    resp=paynow.create_payment(current_user.email, amount)
+    # Use school's email for payments, so all go to one account
+    school_email = os.getenv('SCHOOL_EMAIL', 'school@tcfl.edu.zw')  # or ADMIN_EMAIL
+    resp=paynow.create_payment(school_email, amount, student_name=current_user.full_name, student_id=current_user.id)
     ref=resp['ref']; payment_url=resp['payment_url']
     intent=PaymentIntent(student_id=current_user.id, reference=ref, amount=amount, status='pending')
     db.session.add(intent); db.session.commit()
